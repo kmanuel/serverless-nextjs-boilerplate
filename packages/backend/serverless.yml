@@ -1,0 +1,82 @@
+org: mkruisz
+app: s3next
+service: s3next-backend
+frameworkVersion: '2'
+variablesResolutionMode: 20210326
+
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: 'eu-central-1'
+  lambdaHashingVersion: 20201221
+  environment:
+    DYNAMODB_TABLE: TodosTable
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:*"
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline
+
+functions:
+  hello:
+    handler: ./services/hello-api/handler.handler
+    events:
+      - http:
+          path: /hi
+          method: get
+          cors: true
+  todos-get:
+    handler: ./services/todos-api/get.handler
+    events:
+      - http:
+          path: /todos
+          method: get
+          cors: true
+  todos-post:
+    handler: ./services/todos-api/post.handler
+    events:
+      - http:
+          path: /todos
+          method: post
+          cors: true
+  todos-delete:
+    handler: ./services/todos-api/delete.handler
+    events:
+      - http:
+          path: /todos/{id}
+          method: delete
+          cors: true
+                  
+
+
+custom:
+  serverless-offline:
+    httpPort: 3001
+
+resources:
+  Resources:
+    TodosTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}

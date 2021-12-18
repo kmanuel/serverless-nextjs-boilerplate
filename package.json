@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "lerna run build",
+    "deploy": "lerna run deploy"
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  },
+  "name": "s3next"
+}
